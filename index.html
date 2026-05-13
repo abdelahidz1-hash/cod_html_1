@@ -3,7 +3,7 @@
 
   <head>
     <meta charset="UTF-8">
-    <title>Untitled</title>
+    <title>2026 £</title>
     
 
   </head>
@@ -18,7 +18,8 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
@@ -29,6 +30,10 @@
             --accent-color: #000000; 
             --text-color: #f1f5f9;
             --border-color: #222222;
+            --keyword-color: #ff79c6;
+            --tag-color: #8be9fd;
+            --attr-color: #50fa7b;
+            --comment-color: #6272a4;
         }
 
         body {
@@ -56,7 +61,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0px;
         }
 
         .all-controls-wrapper {
@@ -77,21 +81,65 @@
             align-items: center;
         }
 
-        textarea {
+        .editor-wrapper {
+            position: relative;
             width: 100%;
             height: 600px;
             background-color: var(--card-bg);
-            color: var(--text-color); 
-            border: 1px solid var(--border-color); 
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        #code-input, #highlight-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
             padding: 12px;
+            border: none;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            tab-size: 4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            box-sizing: border-box;
+            direction: ltr;
+            text-align: left;
+        }
+
+        /* التعديل المطلوب على Placeholder */
+        #code-input::placeholder {
             font-family: 'Cairo', sans-serif;
             font-weight: 300;
-            font-size: 14px;
-            outline: none;
-            transition: 0.3s;
-            box-sizing: border-box;
-            resize: vertical;
+            font-size: 16px;
+            color: #444;
+            text-align: right; /* لجعل النص يبدو صحيحاً بالعربية */
         }
+
+        #code-input {
+            background: transparent;
+            color: transparent;
+            caret-color: white;
+            resize: none;
+            z-index: 2;
+            outline: none;
+        }
+
+        #highlight-layer {
+            z-index: 1;
+            color: #f8f8f2;
+            overflow-y: auto;
+            pointer-events: none;
+        }
+
+        .hl-tag { color: var(--tag-color); font-weight: bold; }
+        .hl-attr { color: var(--attr-color); }
+        .hl-keyword { color: var(--keyword-color); }
+        .hl-comment { color: var(--comment-color); font-style: italic; }
+        .hl-string { color: #f1fa8c; }
 
         #preview-window {
             display: none;
@@ -131,127 +179,44 @@
             font-weight: 300;
         }
 
-        button:hover {
-            background-color: #222;
-        }
+        button:hover { background-color: #222; }
+        button img { width: 20px; height: 20px; filter: invert(1); }
 
-        button img {
-            width: 20px;
-            height: 20px;
-            filter: invert(1); 
-        }
-
-        .notification-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
+        .notification-container { position: relative; display: flex; align-items: center; }
         #red-dot {
-            display: none;
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            width: 8px;
-            height: 8px;
-            background-color: red;
-            border-radius: 50%;
-            pointer-events: none;
+            display: none; position: absolute; top: -2px; right: -2px;
+            width: 8px; height: 8px; background-color: red; border-radius: 50%;
         }
 
-        #history-modal, #github-modal, #notifications-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000000;
-            z-index: 1001;
-            overflow-y: auto;
-            padding: 20px;
-            box-sizing: border-box;
+        #history-modal, #notifications-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000000; z-index: 1001; overflow-y: auto; padding: 20px; box-sizing: border-box;
         }
 
         #filename-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #111;
-            border: 1px solid #333;
-            padding: 20px;
-            border-radius: 10px;
-            z-index: 1000;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #111; border: 1px solid #333; padding: 20px; border-radius: 10px;
+            z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
 
         .history-item, .notification-item {
-            background: #0a0a0a;
-            border-bottom: 1px solid #1a1a1a;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 300;
+            background: #0a0a0a; border-bottom: 1px solid #1a1a1a; padding: 15px;
+            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 15px;
         }
 
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 999;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 999;
         }
 
         .input-field {
-            width: 100%;
-            padding: 10px;
-            background: #000;
-            border: 1px solid #333;
-            color: #fff;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 300;
-            box-sizing: border-box;
+            width: 100%; padding: 10px; background: #000; border: 1px solid #333;
+            color: #fff; border-radius: 5px; margin-bottom: 15px; font-family: 'Cairo', sans-serif; box-sizing: border-box;
         }
 
-        .history-header {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            border-bottom: 1px solid #333;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .close-history-btn {
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-        }
-
-        .close-history-btn img {
-            width: 35px;
-            height: 35px;
-            filter: invert(1);
-        }
-
-        #upload-btn-text {
-            font-family: 'Cairo', sans-serif;
-            font-weight: 300;
-            width: 100%;
-            background: #222;
-            padding: 12px;
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-            color: white;
-            border-radius: 5px;
-        }
+        .history-header { display: flex; justify-content: flex-end; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+        .close-history-btn { background: transparent !important; border: none !important; }
+        .close-history-btn img { width: 35px; height: 35px; filter: invert(1); }
     </style>
 </head>
 <body>
@@ -261,7 +226,7 @@
     <div id="notifications-modal">
         <div class="history-header">
             <button onclick="closeModals()" class="close-history-btn">
-                <img src="https://images.icon-icons.com/3162/PNG/96/left_return_arrow_icon_193335.png" alt="إغلاق">
+                <img src="https://images.icon-icons.com/3162/PNG/96/left_return_arrow_icon_193335.png">
             </button>
         </div>
         <div id="notifications-list"></div>
@@ -271,35 +236,15 @@
         <h3 style="margin-top: 0; font-size: 16px;">أدخل اسم الملف</h3>
         <input type="text" id="zip-filename" class="input-field" placeholder="مثال: my_project">
         <div style="display:flex; gap:10px;">
-            <button onclick="confirmDownload()" style="background: #1a1a1a; flex:1;" title="تحميل">
-                <img src="https://images.icon-icons.com/1875/PNG/96/download_120262.png" alt="تحميل">
-            </button>
-            <button onclick="closeModals()" style="background: #000; flex:1;" title="إلغاء">
-                <img src="https://images.icon-icons.com/1769/PNG/96/4115230-cancel-close-cross-delete_114048.png" alt="إلغاء">
-            </button>
+            <button onclick="confirmDownload()" style="background: #1a1a1a; flex:1;"><img src="https://images.icon-icons.com/1875/PNG/96/download_120262.png"></button>
+            <button onclick="closeModals()" style="background: #000; flex:1;"><img src="https://images.icon-icons.com/1769/PNG/96/4115230-cancel-close-cross-delete_114048.png"></button>
         </div>
-    </div>
-
-    <div id="github-modal">
-        <div class="history-header">
-            <button onclick="closeModals()" class="close-history-btn">
-                <img src="https://images.icon-icons.com/3162/PNG/96/left_return_arrow_icon_193335.png" alt="إغلاق">
-            </button>
-        </div>
-        <p style="font-size: 13px; color: #888;">ألصق الكود هنا للمعاينة والرفع:</p>
-        <textarea id="github-code-input" oninput="previewGithubCode()" placeholder="ألصق الكود هنا..." style="height: 150px; margin-bottom: 10px;"></textarea>
-        <div style="font-size: 12px; color: #666; margin-bottom: 5px;">المعاينة التلقائية:</div>
-        <iframe id="github-preview" style="width:100%; height:200px; background:#fff; border-radius:5px; margin-bottom:10px; border:none;"></iframe>
-        <button id="upload-btn-text" onclick="uploadToGithub()">
-            رفع ونشر الموقع الآن
-        </button>
-        <div id="github-link-display" style="margin-top:15px; padding:10px; background:#111; border:1px solid #333; display:none; word-break:break-all;"></div>
     </div>
 
     <div id="history-modal">
         <div class="history-header">
             <button onclick="closeModals()" class="close-history-btn">
-                <img src="https://images.icon-icons.com/3162/PNG/96/left_return_arrow_icon_193335.png" alt="إغلاق">
+                <img src="https://images.icon-icons.com/3162/PNG/96/left_return_arrow_icon_193335.png">
             </button>
         </div>
         <div id="history-list"></div>
@@ -307,50 +252,65 @@
 
     <div class="container">
         <div class="top-header">
-            <div class="label" id="editor-label" style="font-size: 14px; color: #666;"></div>
-            <button id="back-btn" onclick="toggleEditor()" title="الرجوع للمحرر">
-                <img src="https://images.icon-icons.com/3162/PNG/96/left_return_arrow_icon_193335.png" alt="رجوع">
+            <div id="editor-label" style="font-size: 14px; color: #666;"></div>
+            <button id="back-btn" onclick="toggleEditor()">
+                <img src="https://images.icon-icons.com/3162/PNG/96/left_return_arrow_icon_193335.png">
             </button>
             <div style="display: flex; gap: 10px; align-items: center;">
-                <button onclick="openGithubUI()" title="نشر" style="border: none; background: transparent;">
-                    <img src="https://images.icon-icons.com/3261/PNG/96/github_logo_icon_206752.png" alt="Github" style="width: 20px; height: 20px; filter: invert(1);">
-                </button>
-                
                 <div class="notification-container">
-                    <button onclick="openNotifications()" title="إشعارات" style="border: none; background: transparent;">
-                        <img src="https://images.icon-icons.com/3449/PNG/96/attention_notice_bell_alarm_reminder_alert_notification_icon_219315.png" alt="إشعارات" style="width: 20px; height: 20px;">
+                    <button onclick="openNotifications()" style="border: none; background: transparent;">
+                        <img src="https://images.icon-icons.com/3449/PNG/96/attention_notice_bell_alarm_reminder_alert_notification_icon_219315.png" style="width: 20px; height: 20px; filter: invert(1);">
                     </button>
                     <div id="red-dot"></div>
                 </div>
-
-                <button onclick="openHistory()" title="سجلات" style="border: none; background: transparent;">
-                    <img src="https://images.icon-icons.com/508/PNG/96/settings_icon-icons.com_49858.png" alt="سجلات" style="width: 20px; height: 20px;">
+                <button onclick="openHistory()" style="border: none; background: transparent;">
+                    <img src="https://images.icon-icons.com/508/PNG/96/settings_icon-icons.com_49858.png" style="width: 20px; height: 20px;">
                 </button>
             </div>
         </div>
 
         <div class="all-controls-wrapper" id="main-controls-wrapper">
             <div class="button-group">
-                <button onclick="copyCode()" title="نسخ"><img src="https://images.icon-icons.com/3476/PNG/96/internet_browser_essential_basic_website_web_paste_copy_ui_icon_219913.png"></button>
-                <button onclick="pasteCode()" title="لصق"><img src="https://images.icon-icons.com/2783/PNG/96/content_paste_copy_clipboard_icon_177307.png"></button>
-                <button onclick="clearCode()" title="مسح"><img src="https://images.icon-icons.com/868/PNG/96/trash_bin_icon-icons.com_67981.png"></button>
+                <button onclick="copyCode()"><img src="https://images.icon-icons.com/3476/PNG/96/internet_browser_essential_basic_website_web_paste_copy_ui_icon_219913.png"></button>
+                <button onclick="pasteCode()"><img src="https://images.icon-icons.com/2783/PNG/96/content_paste_copy_clipboard_icon_177307.png"></button>
+                <button onclick="clearCode()"><img src="https://images.icon-icons.com/868/PNG/96/trash_bin_icon-icons.com_67981.png"></button>
             </div>
             <div class="button-group">
-                <button onclick="showFilenameInput()" title="تحميل ZIP"><img src="https://images.icon-icons.com/4043/PNG/96/file_direction_down_save_download_icon_256878.png"></button>
-                <button onclick="saveCode()" title="حفظ"><img src="https://images.icon-icons.com/4026/PNG/96/save_icon_255899.png"></button>
-                <button onclick="runCode()" style="background: #1a1a1a;" title="تشغيل"><img src="https://images.icon-icons.com/3259/PNG/96/play_playback_icon_206354.png"></button>
+                <button onclick="showFilenameInput()"><img src="https://images.icon-icons.com/4043/PNG/96/file_direction_down_save_download_icon_256878.png"></button>
+                <button onclick="saveCode()"><img src="https://images.icon-icons.com/4026/PNG/96/save_icon_255899.png"></button>
+                <button onclick="runCode()" style="background: #1a1a1a;"><img src="https://images.icon-icons.com/3259/PNG/96/play_playback_icon_206354.png"></button>
             </div>
         </div>
 
-        <textarea id="code-input" placeholder="اكتب الكود هنا..."></textarea>
+        <div class="editor-wrapper" id="editor-container">
+            <div id="highlight-layer"></div>
+            <textarea id="code-input" placeholder="اكتب الكود هنا..." oninput="updateHighlight()" onscroll="syncScroll()"></textarea>
+        </div>
+        
         <iframe id="preview-window"></iframe>
     </div>
 
     <script>
-        const GITHUB_API_TOKEN = "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"; 
-        const GITHUB_REPO = "abdelahidz1-hash/cod_html_2027";
+        const input = document.getElementById('code-input');
+        const output = document.getElementById('highlight-layer');
 
         window.onload = checkNotifications;
+
+        function updateHighlight() {
+            let text = input.value;
+            text = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            text = text.replace(/(&lt;\/?[a-z1-6]+)(&gt;| )/gi, '<span class="hl-tag">$1</span>$2');
+            text = text.replace(/(class|id|style|src|href|onclick|type|rel)=/gi, '<span class="hl-attr">$1</span>=');
+            text = text.replace(/(function|let|const|var|if|else|return|for|while|document|window)/g, '<span class="hl-keyword">$1</span>');
+            text = text.replace(/(".*?"|'.*?')/g, '<span class="hl-string">$1</span>');
+            text = text.replace(/(&lt;!--.*?--&gt;|\/\/.*)/g, '<span class="hl-comment">$1</span>');
+            output.innerHTML = text + "\n";
+        }
+
+        function syncScroll() {
+            output.scrollTop = input.scrollTop;
+            output.scrollLeft = input.scrollLeft;
+        }
 
         function checkNotifications() {
             const notes = JSON.parse(localStorage.getItem('web_notifications') || "[]");
@@ -359,68 +319,9 @@
 
         function closeModals() {
             document.getElementById('history-modal').style.display = 'none';
-            document.getElementById('github-modal').style.display = 'none';
             document.getElementById('notifications-modal').style.display = 'none';
             document.getElementById('filename-modal').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
-        }
-
-        async function uploadToGithub() {
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
-            audio.volume = 1.0; 
-            audio.play();
-
-            const content = document.getElementById('github-code-input').value;
-            const linkDiv = document.getElementById('github-link-display');
-            if (!content.trim()) return;
-
-            linkDiv.style.display = "block";
-            linkDiv.innerHTML = "جاري الاتصال بـ GitHub...";
-
-            try {
-                let sha = "";
-                const getRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/index.html`, {
-                    headers: { "Authorization": `token ${GITHUB_API_TOKEN}` }
-                });
-                if (getRes.ok) sha = (await getRes.json()).sha;
-
-                const upRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/index.html`, {
-                    method: "PUT",
-                    headers: { "Authorization": `token ${GITHUB_API_TOKEN}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        message: "تحديث من محرر فانتوم", 
-                        content: btoa(unescape(encodeURIComponent(content))), 
-                        sha: sha 
-                    })
-                });
-
-                if (upRes.ok) {
-                    const siteUrl = `https://${GITHUB_REPO.split('/')[0]}.github.io/${GITHUB_REPO.split('/')[1]}/`;
-                    linkDiv.innerHTML = `تم الرفع! سيصلك إشعار بعد دقيقة.`;
-                    
-                    setTimeout(() => {
-                        addNotification(siteUrl);
-                        checkNotifications();
-                        alert("تم إضافة الإشعار في قائمة التنبيهات!");
-                    }, 60000); 
-                } else {
-                    linkDiv.innerHTML = "خطأ: تأكد من التوكن.";
-                }
-            } catch (e) { linkDiv.innerHTML = "فشل الرفع."; }
-        }
-
-        function addNotification(url) {
-            // تشغيل صوت الإشعار
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
-            audio.play();
-
-            let notes = JSON.parse(localStorage.getItem('web_notifications') || "[]");
-            notes.unshift({ 
-                url: url, 
-                date: new Date().toLocaleString('ar-EG'), 
-                msg: "مرحبا بكم في COD HTML هذا موقعك الذي تم رفعه" 
-            });
-            localStorage.setItem('web_notifications', JSON.stringify(notes.slice(0, 10)));
         }
 
         function openNotifications() {
@@ -433,10 +334,8 @@
                 div.innerHTML = `
                     <div style="flex:1">
                         <div style="font-weight:700">${n.msg}</div>
-                        <div style="font-size:11px; color:#3498db; word-break:break-all">${n.url}</div>
                         <div style="font-size:10px; color:#555">${n.date}</div>
                     </div>
-                    <button onclick="window.open('${n.url}', '_blank')">فتح</button>
                     <button onclick="deleteNote(${index})" style="background:transparent; color:red; border:none; font-size:20px">×</button>
                 `;
                 list.appendChild(div);
@@ -453,19 +352,114 @@
             openNotifications();
         }
 
-        function copyCode() { document.getElementById('code-input').select(); document.execCommand('copy'); alert('تم النسخ!'); }
-        async function pasteCode() { const text = await navigator.clipboard.readText(); document.getElementById('code-input').value += text; }
-        function clearCode() { if(confirm('هل تريد المسح؟')) document.getElementById('code-input').value = ''; }
-        function previewGithubCode() { const code = document.getElementById('github-code-input').value; const preview = document.getElementById('github-preview'); const doc = preview.contentDocument || preview.contentWindow.document; doc.open(); doc.write(code); doc.close(); }
-        function openGithubUI() { document.getElementById('github-modal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; document.getElementById('github-code-input').value = document.getElementById('code-input').value; previewGithubCode(); }
-        function runCode() { const code = document.getElementById('code-input').value; const previewFrame = document.getElementById('preview-window'); const previewDoc = previewFrame.contentDocument || previewFrame.contentWindow.document; previewDoc.open(); previewDoc.write(code); previewDoc.close(); document.getElementById('code-input').style.display = 'none'; document.getElementById('main-controls-wrapper').style.display = 'none'; previewFrame.style.display = 'block'; document.getElementById('back-btn').style.display = 'flex'; }
-        function toggleEditor() { document.getElementById('code-input').style.display = 'block'; document.getElementById('main-controls-wrapper').style.display = 'flex'; document.getElementById('preview-window').style.display = 'none'; document.getElementById('back-btn').style.display = 'none'; }
-        function showFilenameInput() { document.getElementById('filename-modal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-        function confirmDownload() { const code = document.getElementById('code-input').value; const filename = document.getElementById('zip-filename').value.trim() || "project"; const zip = new JSZip(); zip.file("index.html", code); zip.generateAsync({type: "blob"}).then(function(content) { const link = document.createElement('a'); link.href = URL.createObjectURL(content); link.download = filename + ".zip"; link.click(); closeModals(); }); }
-        function saveCode() { const code = document.getElementById('code-input').value; let history = JSON.parse(localStorage.getItem('codeHistory') || "[]"); history.unshift({ date: new Date().toLocaleString('ar-EG'), content: code }); localStorage.setItem('codeHistory', JSON.stringify(history.slice(0, 15))); alert('تم الحفظ!'); }
-        function openHistory() { const list = document.getElementById('history-list'); const history = JSON.parse(localStorage.getItem('codeHistory') || "[]"); list.innerHTML = history.length ? '' : '<p style="text-align:center">السجل فارغ</p>'; history.forEach((item, index) => { const div = document.createElement('div'); div.className = 'history-item'; div.innerHTML = `<div style="flex:1">نسخة #${history.length - index}<div style="font-size:10px">${item.date}</div></div><button onclick="loadFromHistory(${index})">استعادة</button><button onclick="deleteHistory(${index})" style="color:red;background:transparent;border:none">×</button>`; list.appendChild(div); }); document.getElementById('history-modal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; }
-        function loadFromHistory(index) { document.getElementById('code-input').value = JSON.parse(localStorage.getItem('codeHistory'))[index].content; closeModals(); }
-        function deleteHistory(index) { let history = JSON.parse(localStorage.getItem('codeHistory')); history.splice(index, 1); localStorage.setItem('codeHistory', JSON.stringify(history)); openHistory(); }
+        function copyCode() { 
+            input.select(); 
+            document.execCommand('copy'); 
+            alert('تم نسخ الكود بنجاح!'); 
+        }
+
+        async function pasteCode() { 
+            try {
+                const text = await navigator.clipboard.readText(); 
+                input.value += text; 
+                updateHighlight();
+            } catch (err) {
+                alert('فشل اللصق، يرجى التأكد من صلاحيات المتصفح');
+            }
+        }
+
+        function clearCode() { 
+            if(confirm('هل تريد مسح جميع الأكواد؟')) {
+                input.value = ''; 
+                updateHighlight();
+            }
+        }
+
+        function runCode() { 
+            const code = input.value; 
+            const previewFrame = document.getElementById('preview-window'); 
+            const previewDoc = previewFrame.contentDocument || previewFrame.contentWindow.document; 
+            previewDoc.open(); 
+            previewDoc.write(code); 
+            previewDoc.close(); 
+            document.getElementById('editor-container').style.display = 'none'; 
+            document.getElementById('main-controls-wrapper').style.display = 'none'; 
+            previewFrame.style.display = 'block'; 
+            document.getElementById('back-btn').style.display = 'flex'; 
+        }
+
+        function toggleEditor() { 
+            document.getElementById('editor-container').style.display = 'block'; 
+            document.getElementById('main-controls-wrapper').style.display = 'flex'; 
+            document.getElementById('preview-window').style.display = 'none'; 
+            document.getElementById('back-btn').style.display = 'none'; 
+        }
+
+        function showFilenameInput() { 
+            document.getElementById('filename-modal').style.display = 'block'; 
+            document.getElementById('overlay').style.display = 'block'; 
+        }
+
+        function confirmDownload() { 
+            const code = input.value; 
+            const filename = document.getElementById('zip-filename').value.trim() || "project"; 
+            const zip = new JSZip(); 
+            zip.file("index.html", code); 
+            zip.generateAsync({type: "blob"}).then(function(content) { 
+                const link = document.createElement('a'); 
+                link.href = URL.createObjectURL(content); 
+                link.download = filename + ".zip"; 
+                link.click(); 
+                closeModals(); 
+            }); 
+        }
+
+        function saveCode() { 
+            const code = input.value; 
+            if(!code.trim()) return;
+            let history = JSON.parse(localStorage.getItem('codeHistory') || "[]"); 
+            history.unshift({ 
+                date: new Date().toLocaleString('ar-EG'), 
+                content: code 
+            }); 
+            localStorage.setItem('codeHistory', JSON.stringify(history.slice(0, 20)));
+            alert('تم حفظ الكود في السجلات بنجاح!');
+        }
+
+        function openHistory() {
+            const list = document.getElementById('history-list');
+            const history = JSON.parse(localStorage.getItem('codeHistory') || "[]");
+            list.innerHTML = history.length ? '' : '<p style="text-align:center; color:#666">لا يوجد سجلات محفوظة</p>';
+            history.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <div style="flex:1">
+                        <div style="font-size:14px; color:#fff">نسخة احتياطية #${history.length - index}</div>
+                        <div style="font-size:11px; color:#555">${item.date}</div>
+                    </div>
+                    <button onclick="loadHistoryItem(${index})">استعادة</button>
+                    <button onclick="deleteHistoryItem(${index})" style="background:transparent; color:red; border:none; font-size:20px">×</button>
+                `;
+                list.appendChild(div);
+            });
+            document.getElementById('history-modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function loadHistoryItem(index) {
+            const history = JSON.parse(localStorage.getItem('codeHistory') || "[]");
+            input.value = history[index].content;
+            updateHighlight();
+            closeModals();
+        }
+
+        function deleteHistoryItem(index) {
+            let history = JSON.parse(localStorage.getItem('codeHistory') || "[]");
+            history.splice(index, 1);
+            localStorage.setItem('codeHistory', JSON.stringify(history));
+            openHistory();
+        }
     </script>
 </body>
 </html>
