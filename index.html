@@ -159,15 +159,15 @@
         }
 
         #back-btn img {
-            width: 30px;
-            height: 30px;
+            width: 24px;
+            height: 24px;
             filter: invert(1);
         }
 
         button {
             background-color: var(--accent-color);
             border: 1px solid var(--border-color);
-            padding: 6px 12px;
+            padding: 4px 8px; /* تم تصغير البادينج */
             border-radius: 5px;
             cursor: pointer;
             transition: 0.2s;
@@ -177,10 +177,11 @@
             color: white;
             font-family: 'Cairo', sans-serif;
             font-weight: 300;
+            font-size: 13px; /* تم تصغير الخط للأزرار النصية */
         }
 
         button:hover { background-color: #222; }
-        button img { width: 20px; height: 20px; filter: invert(1); }
+        button img { width: 15px; height: 15px; filter: invert(1); } /* تم تصغير الأيقونات داخل الأزرار */
 
         .notification-container { position: relative; display: flex; align-items: center; }
         #red-dot {
@@ -216,7 +217,7 @@
 
         .history-header { display: flex; justify-content: flex-end; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
         .close-history-btn { background: transparent !important; border: none !important; }
-        .close-history-btn img { width: 35px; height: 35px; filter: invert(1); }
+        .close-history-btn img { width: 28px; height: 28px; filter: invert(1); }
     </style>
 </head>
 <body>
@@ -276,6 +277,8 @@
                 <button onclick="clearCode()"><img src="https://images.icon-icons.com/868/PNG/96/trash_bin_icon-icons.com_67981.png"></button>
             </div>
             <div class="button-group">
+                <!-- زر توليد رابط المعاينة المؤقت المطلوبة -->
+                <button onclick="generateShareLink()" title="إنشاء رابط معاينة مؤقت"><img src="https://images.icon-icons.com/1913/PNG/96/iconfinder-bl-1645-search-seo-magnifier-earth-globe-internet-4575058_121505.png" style="filter: none;"></button>
                 <button onclick="showFilenameInput()"><img src="https://images.icon-icons.com/4043/PNG/96/file_direction_down_save_download_icon_256878.png"></button>
                 <button onclick="saveCode()"><img src="https://images.icon-icons.com/4026/PNG/96/save_icon_255899.png"></button>
                 <button onclick="runCode()" style="background: #1a1a1a;"><img src="https://images.icon-icons.com/3259/PNG/96/play_playback_icon_206354.png"></button>
@@ -294,7 +297,10 @@
         const input = document.getElementById('code-input');
         const output = document.getElementById('highlight-layer');
 
-        window.onload = checkNotifications;
+        window.onload = function() {
+            checkNotifications();
+            cleanExpiredNotifications();
+        };
 
         function updateHighlight() {
             let text = input.value;
@@ -317,6 +323,16 @@
             document.getElementById('red-dot').style.display = notes.length > 0 ? 'block' : 'none';
         }
 
+        function cleanExpiredNotifications() {
+            let notes = JSON.parse(localStorage.getItem('web_notifications') || "[]");
+            const now = new Date().getTime();
+            const filteredNotes = notes.filter(n => !n.expireTime || n.expireTime > now);
+            if(notes.length !== filteredNotes.length) {
+                localStorage.setItem('web_notifications', JSON.stringify(filteredNotes));
+                checkNotifications();
+            }
+        }
+
         function closeModals() {
             document.getElementById('history-modal').style.display = 'none';
             document.getElementById('notifications-modal').style.display = 'none';
@@ -325,6 +341,7 @@
         }
 
         function openNotifications() {
+            cleanExpiredNotifications();
             const list = document.getElementById('notifications-list');
             const notes = JSON.parse(localStorage.getItem('web_notifications') || "[]");
             list.innerHTML = notes.length ? '' : '<p style="text-align:center; color:#666">لا توجد إشعارات حالياً</p>';
@@ -460,10 +477,7 @@
             localStorage.setItem('codeHistory', JSON.stringify(history));
             openHistory();
         }
-    </script>
-</body>
-</html>
-    
-  </body>
-  
-</html>
+
+        /* دالة إنشاء رابط المعاينة المؤقت الجديد وإرساله للإشعارات */
+        async function generateShareLink() {
+            const code = input.valu
