@@ -4,8 +4,6 @@
   <head>
     <meta charset="UTF-8">
     <title>2026 £</title>
-    
-
   </head>
     
   <body>
@@ -110,13 +108,12 @@
             text-align: left;
         }
 
-        /* التعديل المطلوب على Placeholder */
         #code-input::placeholder {
             font-family: 'Cairo', sans-serif;
             font-weight: 300;
             font-size: 16px;
             color: #444;
-            text-align: right; /* لجعل النص يبدو صحيحاً بالعربية */
+            text-align: right;
         }
 
         #code-input {
@@ -167,7 +164,7 @@
         button {
             background-color: var(--accent-color);
             border: 1px solid var(--border-color);
-            padding: 4px 8px; /* تم تصغير البادينج */
+            padding: 4px 8px;
             border-radius: 5px;
             cursor: pointer;
             transition: 0.2s;
@@ -177,11 +174,11 @@
             color: white;
             font-family: 'Cairo', sans-serif;
             font-weight: 300;
-            font-size: 13px; /* تم تصغير الخط للأزرار النصية */
+            font-size: 13px;
         }
 
         button:hover { background-color: #222; }
-        button img { width: 15px; height: 15px; filter: invert(1); } /* تم تصغير الأيقونات داخل الأزرار */
+        button img { width: 15px; height: 15px; filter: invert(1); }
 
         .notification-container { position: relative; display: flex; align-items: center; }
         #red-dot {
@@ -277,7 +274,6 @@
                 <button onclick="clearCode()"><img src="https://images.icon-icons.com/868/PNG/96/trash_bin_icon-icons.com_67981.png"></button>
             </div>
             <div class="button-group">
-                <!-- زر توليد رابط المعاينة المؤقت المطلوبة -->
                 <button onclick="generateShareLink()" title="إنشاء رابط معاينة مؤقت"><img src="https://images.icon-icons.com/1913/PNG/96/iconfinder-bl-1645-search-seo-magnifier-earth-globe-internet-4575058_121505.png" style="filter: none;"></button>
                 <button onclick="showFilenameInput()"><img src="https://images.icon-icons.com/4043/PNG/96/file_direction_down_save_download_icon_256878.png"></button>
                 <button onclick="saveCode()"><img src="https://images.icon-icons.com/4026/PNG/96/save_icon_255899.png"></button>
@@ -480,4 +476,11 @@
 
         /* دالة إنشاء رابط المعاينة المؤقت الجديد وإرساله للإشعارات */
         async function generateShareLink() {
-            const code = input.valu
+            const code = input.value;
+            if(!code.trim()) {
+                alert('الرجاء كتابة كود أولاً لإنشاء رابط معاينة.');
+                return;
+            }
+            
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.cr
