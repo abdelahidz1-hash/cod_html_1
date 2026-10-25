@@ -301,12 +301,25 @@
         window.onload = function() {
             checkNotifications();
             cleanExpiredNotifications();
+            
+            // استرجاع الكود من الرابط في حال تم مشاركته
+            const hash = window.location.hash;
+            if (hash.startsWith('#code=')) {
+                try {
+                    const encoded = hash.replace('#code=', '');
+                    const decoded = decodeURIComponent(escape(atob(encoded)));
+                    input.value = decoded;
+                    updateHighlight();
+                } catch(e) {
+                    console.error('فشل تحميل الكود المشارك');
+                }
+            }
         };
 
         function updateHighlight() {
             let text = input.value;
             text = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            text = text.replace(/(&lt;\/?[a-z1-6]+)(&gt;| )/gi, '<span class="hl-tag">$1</span>$2');
+            text = text.replace(/(&lt;\/?[a-zA-Z0-9\-]+)(&gt;| )/g, '<span class="hl-tag">$1</span>$2');
             text = text.replace(/(class|id|style|src|href|onclick|type|rel)=/gi, '<span class="hl-attr">$1</span>=');
             text = text.replace(/(function|let|const|var|if|else|return|for|while|document|window)/g, '<span class="hl-keyword">$1</span>');
             text = text.replace(/(".*?"|'.*?')/g, '<span class="hl-string">$1</span>');
@@ -393,6 +406,22 @@
             }
         }
 
+        function generateShareLink() {
+            const code = input.value;
+            if(!code.trim()) {
+                alert('الرجاء كتابة أو لصق كود أولاً لإنشاء رابط مشاركة!');
+                return;
+            }
+            try {
+                const encoded = btoa(unescape(encodeURIComponent(code)));
+                const shareUrl = window.location.origin + window.location.pathname + '#code=' + encoded;
+                navigator.clipboard.writeText(shareUrl);
+                alert('تم إنشاء رابط المعاينة ونسخه إلى الحافظة بنجاح!');
+            } catch(err) {
+                alert('حدث خطأ أثناء إنشاء الرابط.');
+            }
+        }
+
         function runCode() { 
             const code = input.value; 
             const previewFrame = document.getElementById('preview-window'); 
@@ -453,28 +482,4 @@
                 div.className = 'history-item';
                 div.innerHTML = `
                     <div style="flex:1">
-                        <div style="font-size:14px; color:#fff">نسخة احتياطية #${history.length - index}</div>
-                        <div style="font-size:11px; color:#555">${item.date}</div>
-                    </div>
-                    <button onclick="loadHistoryItem(${index})">استعادة</button>
-                    <button onclick="deleteHistoryItem(${index})" style="background:transparent; color:red; border:none; font-size:20px">×</button>
-                `;
-                list.appendChild(div);
-            });
-            document.getElementById('history-modal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-
-        function loadHistoryItem(index) {
-            const history = JSON.parse(localStorage.getItem('codeHistory') || "[]");
-            input.value = history[index].content;
-            updateHighlight();
-            closeModals();
-        }
-
-        function deleteHistoryItem(index) {
-            let history = JSON.parse(localStorage.getItem('codeHistory') || "[]");
-            history.splice(index, 1);
-            localStorage.setItem('codeHistory', JSON.stringify(history));
-            openHistory();
-   
+        
