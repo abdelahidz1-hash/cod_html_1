@@ -1,13 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>2026 £</title>
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -287,6 +278,20 @@
         </div>
         
         <iframe id="preview-window"></iframe>
+
+        <!-- بانر إعلان Adsterra أسفل الصفحة -->
+        <div style="text-align: center; background-color: #000000; padding: 6px 0; width: 100%;">
+            <script>
+              atOptions = {
+                'key' : '69ab74afae32c71dfa68f3228b696128',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+              };
+            </script>
+            <script src="https://bauval.org/22/69ab74afae32c71dfa68f3228b696128"></script>
+        </div>
     </div>
 
     <script>
@@ -472,34 +477,4 @@
             history.splice(index, 1);
             localStorage.setItem('codeHistory', JSON.stringify(history));
             openHistory();
-        }
-
-        /* دالة إنشاء رابط المعاينة المؤقت الجديد وإرساله للإشعارات */
-        async function generateShareLink() {
-            const code = input.value;
-            if(!code.trim()) {
-                alert('الرجاء كتابة كود أولاً لإنشاء رابط معاينة.');
-                return;
-            }
-            
-            const blob = new Blob([code], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            
-            const notes = JSON.parse(localStorage.getItem('web_notifications') || "[]");
-            const now = new Date();
-            const expireTime = now.getTime() + (24 * 60 * 60 * 1000); // صالح لمدة 24 ساعة
-            
-            notes.unshift({
-                msg: `<a href="${url}" target="_blank" style="display: inline-flex; align-items: center;"><img src="https://images.icon-icons.com/2621/PNG/96/gui_print_preview_icon_157060.png" style="width: 24px; height: 24px; filter: invert(1);"></a>`,
-                date: now.toLocaleString('ar-EG'),
-                expireTime: expireTime
-            });
-            
-            localStorage.setItem('web_notifications', JSON.stringify(notes));
-            checkNotifications();
-            alert('تم إنشاء رابط المعاينة المؤقت وإرساله إلى الإشعارات بنجاح!');
-        }
-    </script>
-</body>
-</html>
-
+   
