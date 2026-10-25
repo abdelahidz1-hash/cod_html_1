@@ -483,4 +483,23 @@
             }
             
             const blob = new Blob([code], { type: 'text/html' });
-            const url = URL.cr
+            const url = URL.createObjectURL(blob);
+            
+            const notes = JSON.parse(localStorage.getItem('web_notifications') || "[]");
+            const now = new Date();
+            const expireTime = now.getTime() + (24 * 60 * 60 * 1000); // صالح لمدة 24 ساعة
+            
+            notes.unshift({
+                msg: `<a href="${url}" target="_blank" style="display: inline-flex; align-items: center;"><img src="https://images.icon-icons.com/2621/PNG/96/gui_print_preview_icon_157060.png" style="width: 24px; height: 24px; filter: invert(1);"></a>`,
+                date: now.toLocaleString('ar-EG'),
+                expireTime: expireTime
+            });
+            
+            localStorage.setItem('web_notifications', JSON.stringify(notes));
+            checkNotifications();
+            alert('تم إنشاء رابط المعاينة المؤقت وإرساله إلى الإشعارات بنجاح!');
+        }
+    </script>
+</body>
+</html>
+
